@@ -142,6 +142,10 @@ public class BookDao {
 		}
 
 	}
+	
+	public void giveBackBook(int idUser, int idBook) {
+		
+	}
 
 	public Book getBook(int id) {
 		Book book = new Book();
