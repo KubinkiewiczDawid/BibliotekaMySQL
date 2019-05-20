@@ -71,15 +71,19 @@ public class Application {
 				}
 			case 3:
 				System.out.println("1. Wypozycz ksiazke");
-				System.out.println("2. Pokaz wypozyczone ksiazki");
-				System.out.println("3. Cofnij");
+				System.out.println("2. Oddaj ksiazke");
+				System.out.println("3. Pokaz wypozyczone ksiazki");
+				System.out.println("4. Cofnij");
 				int number3 = scan.nextInt();
 				if(number3 == 1) {
 					rentBook();
 				}else if(number3 == 2) {
+					giveBackBook();
+					break;
+				}else if(number3 == 3) {
 					BookDao bdao = new BookDao();
 					bdao.showAllRents();
-				}else if(number3 == 3) {
+				}else if(number3 == 4) {
 					break;
 				}
 				break;
@@ -198,6 +202,19 @@ public class Application {
 		bdao.showAllBooks();
 		int idBook = scan.nextInt();
 		bdao.rentBook(idBook, idUser);
+	}
+	
+	public static void giveBackBook() {
+		UserDao udao = new UserDao();
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Kto oddaje ksiazke?");
+		udao.showAllUsers();
+		BookDao bdao = new BookDao();
+		int idUser = scan.nextInt();
+		System.out.println("Jaka ksiazke oddaje?");
+		bdao.showRents(idUser);
+		int idBook = scan.nextInt();
+		bdao.giveBackBook(idUser, idBook);
 	}
 	
 }

@@ -19,6 +19,31 @@ public class BookDao {
 	public BookDao() {
 		connect = MySQLConnector.getINSTANCE();
 	}
+	
+	public Book getBook(int id) {
+		Book book = new Book();
+		try {
+			String sql = "SELECT * FROM book WHERE id = ?";
+			PreparedStatement st = connect.getPreparedStatement(sql);
+			st.setInt(1, id);
+
+			ResultSet resultSet = st.executeQuery();
+
+			while (resultSet.next()) {
+				String author = resultSet.getString("author");
+				book.setAuthor(author);
+				String title = resultSet.getString("title");
+				book.setTitle(title);
+				int publishedYear = resultSet.getInt("publishedYear");
+				book.setPublishedYear(publishedYear);
+
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return book;
+	}
 
 	public void addBook(Book book) {
 		String sql = "INSERT INTO book VALUES (?,?,?,?)";
@@ -144,32 +169,48 @@ public class BookDao {
 	}
 	
 	public void giveBackBook(int idUser, int idBook) {
-		
-	}
-
-	public Book getBook(int id) {
-		Book book = new Book();
+		UserDao udao = new UserDao();
+		String sql = "DELETE FROM rent WHERE user = ? AND book = ?";
+		PreparedStatement state = connect.getPreparedStatement(sql);
 		try {
-			String sql = "SELECT * FROM book WHERE id = ?";
-			PreparedStatement st = connect.getPreparedStatement(sql);
-			st.setInt(1, id);
-
-			ResultSet resultSet = st.executeQuery();
-
-			while (resultSet.next()) {
-				String author = resultSet.getString("author");
-				book.setAuthor(author);
-				String title = resultSet.getString("title");
-				book.setTitle(title);
-				int publishedYear = resultSet.getInt("publishedYear");
-				book.setPublishedYear(publishedYear);
-
-			}
-
+			state.setInt(1, idUser);
+			state.setInt(2, idBook);
+			state.execute();
+			state.closeOnCompletion();
+			System.out.println("Ksiazka " + getBook(idBook).getTitle() +  " wypozyczona przez uzytkownika " + udao.getUser(idUser).getName() + " " + udao.getUser(idUser).getLastname() + " zostala zwrocona");
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return book;
+	}
+
+	public void showRents(int idUser) {
+		Book book = new Book();
+		User user = new User();
+		UserDao udao = new UserDao();
+		int counter = 1;
+		String sql = "SELECT * FROM rent WHERE user = ?";
+		PreparedStatement state = connect.getPreparedStatement(sql);
+		try {
+			state.setInt(1, idUser);
+			state.execute();
+			state.closeOnCompletion();
+			ResultSet resultSet = state.executeQuery();
+			while(resultSet.next()) {
+				int bookId = resultSet.getInt("book");
+				int userId = resultSet.getInt("user");
+				book = getBook(bookId);
+				user = udao.getUser(userId);
+				if(counter == 1) {
+					System.out.println("Ksiazki wypozyczone przez uzytkownika " + user.getName() + ':');
+				}
+				System.out.println(counter + ". " + book.toString() + " numer ksiazki: " + bookId);
+				counter++;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void showAllRents() {
